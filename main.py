@@ -38,7 +38,7 @@ def evaluate_clf(clf, clf_name, X_train, X_test, y_train, y_test, sampling_tech=
     return y_pred, entry
 
 
-def modelling(X_train, X_test, y_train, y_test):
+def modelling(X_train, X_test, y_train, y_test, imgdir, tag=''):
     classifiers = {
         'KNN': KNeighborsClassifier(),
         'SVM': SVC(random_state=42, probability=True),
@@ -78,6 +78,8 @@ def modelling(X_train, X_test, y_train, y_test):
             
         plt.tight_layout()
         plt.show()
+
+        fig.savefig(f'{imgdir}/{tag}_{name}_cm.png')
         print(results.loc[len(results)-len(sampling_techniques.keys()):len(results)-1].drop(['TPR', 'FPR'], axis=1).to_string())
     return results
 
@@ -176,10 +178,10 @@ def main():
     print(data.info())
 
     corr = data.select_dtypes(include=[np.number, bool]).corr()
-
-    plt.figure(figsize=(14, 10))
+    hmap1 = plt.figure(figsize=(14, 10))
     sns.heatmap(corr, cmap='coolwarm', fmt='.2f', annot=True)
     plt.show()
+    hmap1.savefig('./img/heatmap1.png')
 
     data.insert(loc=0, column='SessionDuration', value=data.Administrative_Duration+data.Informational_Duration+data.ProductRelated_Duration)
     data.insert(loc=1, column='AdministrativeAvgDuration', value=(data.Administrative_Duration/data.Administrative).replace(np.nan, 0))
@@ -188,10 +190,10 @@ def main():
     print(data.isnull().sum())
 
     corr = data.select_dtypes(include=[np.number, bool]).corr()
-
-    plt.figure(figsize=(12, 10))
+    hmap2 = plt.figure(figsize=(14, 10))
     sns.heatmap(corr, cmap='coolwarm', fmt='.2f', annot=True)
     plt.show()
+    hmap2.savefig('./img/heatmap2.png')
 
     # identify highly correlated features (we'll set the threshold to 0.9)
     upper = corr.where(np.triu(np.ones(corr.shape), k=1).astype(bool))
@@ -203,9 +205,10 @@ def main():
             'ProductRelated', 'ProductRelated_Duration', 'ExitRates'], axis=1, inplace=True)
 
     corr = data.select_dtypes(include=[np.number, bool]).corr()
-    plt.figure(figsize=(12, 10))
+    hmap3 = plt.figure(figsize=(12, 10))
     sns.heatmap(corr, cmap='coolwarm', fmt='.2f', annot=True)
     plt.show()
+    hmap3.savefig('./img/heatmap3.png')
 
     # Data preprocessing
     # categorical encoding (one-hot encoding)
@@ -235,20 +238,26 @@ def main():
     print("Train set shape:", X_train.shape)
     print("Test set shape:", X_test.shape)
 
-    results = modelling(X_train, X_test, y_train, y_test)
-    figure1 = sampling_comparison(results)
-    figure2 = model_comparison(results)
+    results = modelling(X_train, X_test, y_train, y_test, './img')
+    fig1 = sampling_comparison(results)
+    fig1.savefig('./img/roc_sampling_comparison.png')
+
+    fig2 = model_comparison(results)
+    fig2.savefig('./img/roc_model_comparison.png')
 
     selector = SelectKBest(f_classif, k=10)
     X_train_selected = selector.fit_transform(X_train, y_train)
     X_test_selected = selector.transform(X_test)
 
     selected_features = X_train.columns[selector.get_support()]
-    print(selected_features.to_string())
+    print(selected_features)
 
-    top10results = modelling(X_train_selected, X_test_selected, y_train, y_test)
-    figure3 = sampling_comparison(top10results)
-    figure4 = model_comparison(top10results)
+    top10results = modelling(X_train_selected, X_test_selected, y_train, y_test, './img', 'top10')
+    fig3 = sampling_comparison(top10results)
+    fig3.savefig('./img/top10_roc_sampling_comparison.png')
+
+    fig4 = model_comparison(top10results)
+    fig4.savefig('./img/top10_roc_model_comparison.png')
 
     param_dist = {
         'n_estimators': [50, 100, 200],
