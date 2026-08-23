@@ -177,10 +177,18 @@ NOT_DEPLOYABLE_REASON = (
     "regardless of its metrics. Retained as a measured ceiling and as the evidence for the contamination finding."
 )
 
+# telemetry-only arm
+TELEMETRY_DROP = ABLATION_DROP
+TELEMETRY_FULL_TAG = "nopv"
+TELEMETRY_TOP10_TAG = "nopv_top10"
+RESULTS_TELEMETRY_CSV = DATA_DIR / "results_no_pagevalues.csv"
+RESULTS_TELEMETRY_TOP10_CSV = DATA_DIR / "results_no_pagevalues_top10.csv"
+THRESHOLD_SWEEP_TELEMETRY_CSV = DATA_DIR / "threshold_sweep_no_pagevalues.csv"
+THRESHOLD_SWEEP_TELEMETRY_TOP10_CSV = DATA_DIR / "threshold_sweep_no_pagevalues_top10.csv"
+
 # smote
 SMOTE_REGIME = "smote"
 SMOTE_CHECK_MODEL = "RandomForest"
-
 
 # persisted bundles
 BUNDLE_FORMAT_VERSION = 2
@@ -203,3 +211,7 @@ BUNDLE_TRACKED_LIBRARIES = [
 ]
 BUNDLE_PROBA_TOLERANCE = 1e-9
 BUNDLE_COMPRESS_LEVEL = 3
+
+IMPORTANCE_TOP_N = 20
+IMPORTANCE_KIND_TREE = "impurity-based feature importance"
+IMPORTANCE_KIND_LINEAR = "coefficient magnitude (standardized inputs)"
