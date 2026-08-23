@@ -171,6 +171,35 @@ TIER_ANALYSIS = "analysis-ceiling"
 ARM_TIER = {ARM_ANALYSIS: TIER_ANALYSIS, ARM_PRODUCTION: TIER_PRODUCTION}
 ARM_FEATURE_COUNT = {ARM_ANALYSIS: 65, ARM_PRODUCTION: 64}
 
+NOT_DEPLOYABLE_REASON = (
+    "requires PageValues, a page-level aggregate over a reporting window derived from completed transactions. "
+    "It cannot be computed for a session in progress, so this bundle cannot serve the mid-session scoring use case "
+    "regardless of its metrics. Retained as a measured ceiling and as the evidence for the contamination finding."
+)
+
 # smote
 SMOTE_REGIME = "smote"
 SMOTE_CHECK_MODEL = "RandomForest"
+
+
+# persisted bundles
+BUNDLE_FORMAT_VERSION = 2
+PRODUCTION_FULL_BUNDLE = MODELS_DIR / "production_full.joblib"
+PRODUCTION_TOP10_BUNDLE = MODELS_DIR / "production_top10.joblib"
+CEILING_FULL_BUNDLE = MODELS_DIR / "ceiling_full.joblib"
+CEILING_TOP10_BUNDLE = MODELS_DIR / "ceiling_top10.joblib"
+PRIMARY_BUNDLE = CEILING_FULL_BUNDLE
+SECONDARY_BUNDLE = CEILING_TOP10_BUNDLE
+TELEMETRY_PRIMARY_BUNDLE = PRODUCTION_FULL_BUNDLE
+TELEMETRY_SECONDARY_BUNDLE = PRODUCTION_TOP10_BUNDLE
+BUNDLE_TRACKED_LIBRARIES = [
+    "scikit-learn",
+    "imbalanced-learn",
+    "xgboost",
+    "numpy",
+    "pandas",
+    "scipy",
+    "joblib",
+]
+BUNDLE_PROBA_TOLERANCE = 1e-9
+BUNDLE_COMPRESS_LEVEL = 3
