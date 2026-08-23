@@ -63,10 +63,7 @@ def write_comparison(rows: list[list], csv_path=config.REGIME_THRESHOLD_COMPARIS
     frame = pd.DataFrame(rows, columns=COMPARISON_COLUMNS)
     config.DATA_DIR.mkdir(parents=True, exist_ok=True)
     frame.to_csv(csv_path, index=False)
-    print(
-        f"\nRegime × threshold comparison -> {config.display_path(csv_path)} "
-        f"({len(frame)} rows)"
-    )
+    print(f"\nRegime x threshold comparison -> {config.display_path(csv_path)} ({len(frame)} rows)")
 
     print("\nSpread across the four regimes, per model x arm x feature set:")
     spread = (
@@ -93,19 +90,9 @@ def smote_check(X_train, X_test, y_train, y_test, arm_label) -> list:
 
     clf = classifier_registry()[config.SMOTE_CHECK_MODEL]
     pipe = build_pipeline(clf, sampler=SMOTE(random_state=config.RANDOM_STATE))
-    entry, _, y_proba = fit_and_evaluate(
-        pipe,
-        config.SMOTE_CHECK_MODEL,
-        X_train,
-        X_test,
-        y_train,
-        y_test,
-        config.SMOTE_REGIME,
-    )
+    entry, _, y_proba = fit_and_evaluate(pipe, config.SMOTE_CHECK_MODEL, X_train, X_test, y_train, y_test, config.SMOTE_REGIME)
     auc = float(entry[8])
-    f1_default = float(
-        thresholds.sweep(y_test, y_proba, [config.DEFAULT_THRESHOLD])["F1-Score"].iloc[0]
-    )
+    f1_default = float(thresholds.sweep(y_test, y_proba, [config.DEFAULT_THRESHOLD])["F1-Score"].iloc[0])
     best, best_t = thresholds.best_f1(y_test, y_proba)
     return [arm_label, config.SMOTE_CHECK_MODEL, config.SMOTE_REGIME, auc, f1_default, best, best_t]
 

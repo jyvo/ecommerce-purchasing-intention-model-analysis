@@ -56,7 +56,7 @@ def run_pipeline() -> None:
     print(high_corr)
     if sorted(high_corr) != sorted(config.CORRELATED_DROP):
         print(
-            "NOTE(R15): correlation scan disagrees with config.CORRELATED_DROP — "
+            "NOTE: correlation scan disagrees with config.CORRELATED_DROP — "
             f"scan={sorted(high_corr)} dropped={sorted(config.CORRELATED_DROP)}"
         )
 
@@ -223,7 +223,7 @@ def _report_selection(results, arm: Arm, feature_set: str) -> tuple:
     print(
         f"  legacy : {legacy['Model']} / {legacy['SamplingTechnique']} "
         f"(AUC={legacy['AUC']:.4f}, F1@predict={legacy['F1-Score']:.4f}) "
-        f"— highest F1, the pre-2.5 criterion"
+        f"— highest F1"
     )
     print(f"  headline configuration {'CHANGES' if moved else 'is unchanged'} under the policy")
 
@@ -231,7 +231,7 @@ def _report_selection(results, arm: Arm, feature_set: str) -> tuple:
         "policy": (
             f"{config.SELECTION_METRIC} with a {config.AUC_TIE_BAND:g} tie band; "
             f"ties broken by regime preference {config.REGIME_PREFERENCE}, then "
-            f"{config.SELECTION_METRIC} (FR-31)"
+            f"{config.SELECTION_METRIC}"
         ),
         "tied_configurations": tied,
         "auc_ceiling": float(ceiling),

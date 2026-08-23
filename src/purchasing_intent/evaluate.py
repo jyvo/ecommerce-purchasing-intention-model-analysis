@@ -84,7 +84,7 @@ def run_grid(X_train, X_test, y_train, y_test, select_k=None, tag=config.FULL_TA
 
     config.DATA_DIR.mkdir(parents=True, exist_ok=True)
     results.to_csv(csv_path, index=False)
-    print(f"Wrote {config.display_path(csv_path)}")
+    print(f"Wrote {config.display_path(csv_path)}\n")
     return results
 
 
