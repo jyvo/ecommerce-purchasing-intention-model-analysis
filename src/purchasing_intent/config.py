@@ -46,3 +46,19 @@ CORRELATED_DROP = [
 LOGREG_MAX_ITER = 1000
 XGB_EVAL_METRIC = "logloss"
 SVM_PROBABILITY = True # to be removed when CalibratedClassifierCV is used for SVM
+
+# sampling
+BASE_REGIME = "base"
+OVERSAMPLING_REGIME = "oversampling"
+UNDERSAMPLING_REGIME = "undersampling"
+CLASS_WEIGHTED_REGIME = "class_weighted"
+SAMPLING_REGIMES = [
+    BASE_REGIME,
+    OVERSAMPLING_REGIME,
+    UNDERSAMPLING_REGIME,
+    CLASS_WEIGHTED_REGIME,
+]
+
+CLASS_WEIGHT_BALANCED = "balanced"
+# KNN has no native class-weight mechanism
+CLASS_WEIGHT_UNSUPPORTED = ["KNN"]
