@@ -23,6 +23,9 @@ RESULTS_TOP10_CSV = DATA_DIR / "results_top10.csv"
 THRESHOLD_SWEEP_CSV = DATA_DIR / "threshold_sweep.csv"
 THRESHOLD_SWEEP_TOP10_CSV = DATA_DIR / "threshold_sweep_top10.csv"
 
+REGIME_THRESHOLD_COMPARISON_CSV = DATA_DIR / "regime_threshold_comparison.csv"
+SMOTE_CHECK_CSV = DATA_DIR / "smote_check.csv"
+
 # dataset
 UCI_DATASET_ID = 468
 TARGET = "Revenue"
@@ -167,3 +170,7 @@ TIER_PRODUCTION = "production"
 TIER_ANALYSIS = "analysis-ceiling"
 ARM_TIER = {ARM_ANALYSIS: TIER_ANALYSIS, ARM_PRODUCTION: TIER_PRODUCTION}
 ARM_FEATURE_COUNT = {ARM_ANALYSIS: 65, ARM_PRODUCTION: 64}
+
+# smote
+SMOTE_REGIME = "smote"
+SMOTE_CHECK_MODEL = "RandomForest"
