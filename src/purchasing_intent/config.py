@@ -8,6 +8,21 @@ MODELS_DIR = PROJECT_ROOT / "models"
 CACHE_DIR = DATA_DIR / "cache"
 BASELINE_DIR = DATA_DIR / "baseline"
 
+RAW_CSV = DATA_DIR / "raw.csv"
+DATASET_CACHE = CACHE_DIR / "uci_468.joblib"
+
+def display_path(path) -> str:
+    path = Path(path)
+    try:
+        return str(path.resolve().relative_to(PROJECT_ROOT))
+    except ValueError:
+        return str(path)
+
+RESULTS_FULL_CSV = DATA_DIR / "results.csv"
+RESULTS_TOP10_CSV = DATA_DIR / "results_top10.csv"
+THRESHOLD_SWEEP_CSV = DATA_DIR / "threshold_sweep.csv"
+THRESHOLD_SWEEP_TOP10_CSV = DATA_DIR / "threshold_sweep_top10.csv"
+
 # dataset
 UCI_DATASET_ID = 468
 TARGET = "Revenue"
@@ -59,6 +74,8 @@ SAMPLING_REGIMES = [
     CLASS_WEIGHTED_REGIME,
 ]
 
+LEGACY_REGIMES = [BASE_REGIME, OVERSAMPLING_REGIME, UNDERSAMPLING_REGIME]
+
 CLASS_WEIGHT_BALANCED = "balanced"
 # KNN has no native class-weight mechanism
 CLASS_WEIGHT_UNSUPPORTED = ["KNN"]
@@ -73,3 +90,48 @@ RF_PARAM_DIST = {
 TUNING_N_ITER = 10
 TUNING_CV_FOLDS = 5
 TUNING_SCORING = "f1"
+
+# selection policy
+SELECTION_METRIC = "AUC"
+AUC_TIE_BAND = 0.005
+REGIME_PREFERENCE = [
+    BASE_REGIME,
+    CLASS_WEIGHTED_REGIME,
+    OVERSAMPLING_REGIME,
+    UNDERSAMPLING_REGIME,
+]
+LEGACY_SELECTION_METRIC = "F1-Score"
+
+# results
+RESULTS_COLUMNS = [
+    "Model",
+    "SamplingTechnique",
+    "Accuracy",
+    "Precision",
+    "Recall",
+    "F1-Score",
+    "FPR",
+    "TPR",
+    "AUC",
+]
+FULL_TAG = "result"
+TOP10_TAG = "top10"
+
+# page values ablation
+ABLATION_DROP = ["PageValues"]
+
+# matplotlib figures
+HEATMAP_FIGSIZE = (14, 10)
+HEATMAP_FIGSIZE_REDUCED = (12, 10)
+HEATMAP_CMAP = "coolwarm"
+HEATMAP_FMT = ".2f"
+CM_FIGSIZE = (18, 6)
+CM_CMAP = "Blues"
+CM_TITLE_FONTSIZE = 16
+ROC_GRID_COLS = 3
+ROC_SAMPLING_FIGSIZE = (15, 10)
+ROC_MODEL_FIGSIZE = (15, 10)
+ROC_DIAGONAL_COLOR = "navy"
+ROC_DIAGONAL_STYLE = "--"
+ROC_AXIS_LIMITS = (0.0, 1.0)
+ROC_LEGEND_LOC = "lower right"
