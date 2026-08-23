@@ -62,3 +62,14 @@ SAMPLING_REGIMES = [
 CLASS_WEIGHT_BALANCED = "balanced"
 # KNN has no native class-weight mechanism
 CLASS_WEIGHT_UNSUPPORTED = ["KNN"]
+
+# tuning
+RF_PARAM_DIST = {
+    "n_estimators": [50, 100, 200],
+    "max_depth": [None, 5, 10, 20],
+    "min_samples_split": [2, 5, 10],
+    "min_samples_leaf": [1, 2, 4],
+}
+TUNING_N_ITER = 10
+TUNING_CV_FOLDS = 5
+TUNING_SCORING = "f1"
