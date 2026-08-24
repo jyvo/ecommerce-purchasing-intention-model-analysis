@@ -38,7 +38,7 @@ def evaluate_clf(clf, clf_name, X_train, X_test, y_train, y_test, sampling_tech=
     return y_pred, entry
 
 
-def modelling(X_train, X_test, y_train, y_test, imgdir, tag=''):
+def modelling(X_train, X_test, y_train, y_test, imgdir, tag='result', plot=True):
     classifiers = {
         'KNN': KNeighborsClassifier(),
         'SVM': SVC(random_state=42, probability=True),
@@ -77,15 +77,17 @@ def modelling(X_train, X_test, y_train, y_test, imgdir, tag=''):
             axs[i].set_title(method) 
             
         plt.tight_layout()
-        plt.show()
+        if plot:
+            plt.show()
 
         fig.savefig(f'{imgdir}/{tag}_{name}_cm.png')
         print(results.loc[len(results)-len(sampling_techniques.keys()):len(results)-1].drop(['TPR', 'FPR'], axis=1).to_string())
+    results.to_csv(f'data/{tag}.csv', index=False)
     return results
 
 
 # given data on models and different sampling techniques, compare the sampling techniques with their respective model
-def sampling_comparison(data):
+def sampling_comparison(data, plot=True):
     classifiers = data['Model'].unique()
     
     fig_cols = 3
@@ -120,12 +122,13 @@ def sampling_comparison(data):
         ax.legend(loc="lower right")
     
     plt.tight_layout()
-    plt.show()
+    if plot:
+        plt.show()
     return fig
 
 
 # given data of models and different sampling techniques, compare each model with respect to the different sampling techniques
-def model_comparison(data):
+def model_comparison(data, plot=True):
     sampling_techs = data['SamplingTechnique'].unique()
     
     fig_cols = 3
@@ -162,7 +165,8 @@ def model_comparison(data):
         ax.legend(loc="lower right")
     
     plt.tight_layout()
-    plt.show()
+    if plot:
+        plt.show()
     return fig
 
 
@@ -180,7 +184,7 @@ def main():
     corr = data.select_dtypes(include=[np.number, bool]).corr()
     hmap1 = plt.figure(figsize=(14, 10))
     sns.heatmap(corr, cmap='coolwarm', fmt='.2f', annot=True)
-    plt.show()
+    # plt.show()
     hmap1.savefig('./img/heatmap1.png')
 
     data.insert(loc=0, column='SessionDuration', value=data.Administrative_Duration+data.Informational_Duration+data.ProductRelated_Duration)
@@ -192,7 +196,7 @@ def main():
     corr = data.select_dtypes(include=[np.number, bool]).corr()
     hmap2 = plt.figure(figsize=(14, 10))
     sns.heatmap(corr, cmap='coolwarm', fmt='.2f', annot=True)
-    plt.show()
+    # plt.show()
     hmap2.savefig('./img/heatmap2.png')
 
     # identify highly correlated features (we'll set the threshold to 0.9)
@@ -207,8 +211,10 @@ def main():
     corr = data.select_dtypes(include=[np.number, bool]).corr()
     hmap3 = plt.figure(figsize=(12, 10))
     sns.heatmap(corr, cmap='coolwarm', fmt='.2f', annot=True)
-    plt.show()
+    # plt.show()
     hmap3.savefig('./img/heatmap3.png')
+
+    data.to_csv('data/raw.csv', index=False)
 
     # Data preprocessing
     # categorical encoding (one-hot encoding)
@@ -230,6 +236,7 @@ def main():
     total = neg + pos
     print(f"Minority class at {100*pos/total:.2f}% of total")
 
+
     X = data.drop('Revenue', axis=1)
     y = data['Revenue']
 
@@ -238,11 +245,11 @@ def main():
     print("Train set shape:", X_train.shape)
     print("Test set shape:", X_test.shape)
 
-    results = modelling(X_train, X_test, y_train, y_test, './img')
-    fig1 = sampling_comparison(results)
+    results = modelling(X_train, X_test, y_train, y_test, './img', plot=False)
+    fig1 = sampling_comparison(results, plot=False)
     fig1.savefig('./img/roc_sampling_comparison.png')
 
-    fig2 = model_comparison(results)
+    fig2 = model_comparison(results, plot=False)
     fig2.savefig('./img/roc_model_comparison.png')
 
     selector = SelectKBest(f_classif, k=10)
@@ -252,11 +259,11 @@ def main():
     selected_features = X_train.columns[selector.get_support()]
     print(selected_features)
 
-    top10results = modelling(X_train_selected, X_test_selected, y_train, y_test, './img', 'top10')
-    fig3 = sampling_comparison(top10results)
+    top10results = modelling(X_train_selected, X_test_selected, y_train, y_test, './img', tag='top10', plot=False)
+    fig3 = sampling_comparison(top10results, plot=False)
     fig3.savefig('./img/top10_roc_sampling_comparison.png')
 
-    fig4 = model_comparison(top10results)
+    fig4 = model_comparison(top10results, plot=False)
     fig4.savefig('./img/top10_roc_model_comparison.png')
 
     param_dist = {
