@@ -28,3 +28,6 @@ dev = [
     "jupyter",
     "ipykernel",
 ]
+
+[project.scripts]
+pi-pipeline = "purchasing_intent.cli:run_pipeline"
