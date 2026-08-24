@@ -5,6 +5,7 @@ from . import config, plots_mpl
 from .models import classifier_registry, positive_class_weight, sampler_registry
 from .pipeline import assert_column_order_preserved, build_pipeline
 
+import time
 
 def fit_and_evaluate(pipe, clf_name, X_train, X_test, y_train, y_test, regime=""):
     """fit a pipeline and record metrics + ROC curve
@@ -54,7 +55,9 @@ def run_grid(X_train, X_test, y_train, y_test, select_k=None, tag=config.FULL_TA
 
     for name in classifier_registry():
         predictions = []
-
+        
+        print(f"\n{name} evaluating...")
+        start = time.time()
         for regime in config.SAMPLING_REGIMES:
             clf = registries[regime].get(name)
             if clf is None:
@@ -63,9 +66,7 @@ def run_grid(X_train, X_test, y_train, y_test, select_k=None, tag=config.FULL_TA
                 continue
 
             pipe = build_pipeline(clf, sampler=samplers[regime], select_k=select_k)
-            entry, y_pred, y_proba = fit_and_evaluate(
-                pipe, name, X_train, X_test, y_train, y_test, regime
-            )
+            entry, y_pred, y_proba = fit_and_evaluate(pipe, name, X_train, X_test, y_train, y_test, regime)
             results.loc[len(results)] = entry
             predictions.append((regime, y_pred, pipe.named_steps["clf"].classes_))
             if proba_sink is not None:
@@ -75,16 +76,17 @@ def run_grid(X_train, X_test, y_train, y_test, select_k=None, tag=config.FULL_TA
                 selected = list(pipe.named_steps["selector"].get_feature_names_out())
 
         plots_mpl.confusion_grid(y_test, predictions, name, tag, plot=plot)
+        print(f"{name} finished in {time.time() - start:.2f} seconds")
 
-        recent = results.loc[len(results) - len(predictions) : len(results) - 1]
-        print(recent.drop(["TPR", "FPR"], axis=1).to_string())
+    print("\nAll models finished.")
+    print(results.drop(["TPR", "FPR"], axis=1).to_string())
 
     if selected:
         print(f"\nSelectKBest(k={select_k}) features: {selected}")
 
     config.DATA_DIR.mkdir(parents=True, exist_ok=True)
     results.to_csv(csv_path, index=False)
-    print(f"Wrote {config.display_path(csv_path)}\n")
+    print(f"Wrote {config.display_path(csv_path)}")
     return results
 
 
