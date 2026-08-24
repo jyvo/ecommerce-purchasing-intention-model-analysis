@@ -15,6 +15,7 @@ def correlation_heatmap(corr, path, figsize=config.HEATMAP_FIGSIZE):
     fig = plt.figure(figsize=figsize)
     sns.heatmap(corr, cmap=config.HEATMAP_CMAP, fmt=config.HEATMAP_FMT, annot=True)
     fig.savefig(path)
+    plt.close(fig)
     return fig
 
 
@@ -38,6 +39,7 @@ def confusion_grid(y_test, predictions, model_name, tag, plot=False):
         plt.show()
 
     fig.savefig(config.IMG_DIR / f"{tag}_{model_name}_cm.png")
+    plt.close(fig)
     return fig
 
 
@@ -95,6 +97,7 @@ def sampling_comparison(data, plot=True, figsize=config.ROC_SAMPLING_FIGSIZE):
     plt.tight_layout()
     if plot:
         plt.show()
+    plt.close(fig)
     return fig
 
 
@@ -130,4 +133,5 @@ def model_comparison(data, plot=True, figsize=config.ROC_MODEL_FIGSIZE):
     plt.tight_layout()
     if plot:
         plt.show()
+    plt.close(fig)
     return fig
