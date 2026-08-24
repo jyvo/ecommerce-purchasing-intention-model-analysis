@@ -22,7 +22,7 @@ def fit_and_evaluate(pipe, clf_name, X_train, X_test, y_train, y_test, regime=""
         clf_name,
         regime,
         accuracy_score(y_test, y_pred),
-        precision_score(y_test, y_pred),
+        precision_score(y_test, y_pred, zero_division=0),
         recall_score(y_test, y_pred),
         f1_score(y_test, y_pred),
         fpr,
@@ -56,7 +56,7 @@ def run_grid(X_train, X_test, y_train, y_test, select_k=None, tag=config.FULL_TA
     for name in classifier_registry():
         predictions = []
         
-        print(f"\n{name} evaluating...")
+        print(f"{name} evaluating...")
         start = time.time()
         for regime in config.SAMPLING_REGIMES:
             clf = registries[regime].get(name)
@@ -76,9 +76,14 @@ def run_grid(X_train, X_test, y_train, y_test, select_k=None, tag=config.FULL_TA
                 selected = list(pipe.named_steps["selector"].get_feature_names_out())
 
         plots_mpl.confusion_grid(y_test, predictions, name, tag, plot=plot)
-        print(f"{name} finished in {time.time() - start:.2f} seconds")
+        print(f"{name} finished in {time.time() - start:.2f} seconds\n")
+        
+        # prints all current model results (for notebook visibility)
+        # recent = results.loc[len(results) - len(predictions) : len(results) - 1]
+        # print(recent.drop(["TPR", "FPR"], axis=1).to_string())
 
-    print("\nAll models finished.")
+    print("All models finished.")
+    # prints all df results
     print(results.drop(["TPR", "FPR"], axis=1).to_string())
 
     if selected:
