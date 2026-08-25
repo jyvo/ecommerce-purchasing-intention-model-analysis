@@ -2,9 +2,9 @@
 
 An end-to-end case study in predicting purchase intent from raw e-commerce clickstream data from the [UCI Online Shoppers Purchasing Intention dataset](https://archive.ics.uci.edu/dataset/468/online+shoppers+purchasing+intention+dataset) (2018), to a modelling pipeline, a local dashboard, and an analysis report.
 
-> **Published report** — *link to be added once GitHub Pages is live.* \
-> **Model documentation & validation report** - *link to be added.* \
-> **Pipeline notebook** - *[`notebooks/analysis.ipynb`](/notebooks/analysis.ipynb)*
+> **Published Report** — *link to be added once GitHub Pages is live.* \
+> **Model Documentation & validation report** - *link to be added.* \
+> **Exploratory Data Analysis** - *[`notebooks/analysis.ipynb`](/notebooks/analysis.ipynb)*
 
 
 ## Overview
@@ -42,11 +42,11 @@ Random Forest, selected across the full 19-configuration grid and thresholded:
 
 Against a base rate where 15.5 in 100 sessions convert:
 
-| Cut-off | Precision | Lift vs. random | Recall | Sessions flagged (of 2,466) | |
-|-|-|-|-|-|-|
+| Cut-off | Precision | Lift vs. random | Recall | Sessions flagged (of 2,466) |
+|-|-|-|-|-|
 | 0.40 | 0.238 | 1.54× | 0.880 | 1,410 |
 | **0.45** | 0.254 | 1.64× | **0.827** | 1,246 (published high-reach point) |
-| 0.50 | 0.272 | 1.76× | 0.762 | 1,069 | |
+| 0.50 | 0.272 | 1.76× | 0.762 | 1,069 |
 | **0.60** | 0.311 | **2.01×** | 0.568 | 698 (published high-precision point)|
 
 The 0.60 row can be read/understood as:
@@ -91,7 +91,7 @@ _**Telemetry**_
 ![ROC curves by model, one panel per sampling regime — telemetry only](img/nopv_roc_model_comparison.png)
 
 Same axes, same models.
->Again, native *scikit-learn* **KNN** does not support `class-weight`, hence, it is voided (for now, may be revisited later for analysis).
+>Again, native *scikit-learn* **KNN** does not support `class-weight`, hence, it is voided (for now, may be revisited later for analysis)
 
 **Why the choice of imbalance strategy stopped mattering?**
 
@@ -107,7 +107,7 @@ Only ~15% of sessions convert, so the initial instinct to deal with this highly 
 At a fixed cut-off the strategies look 2.8 times apart on the telemetry arm. Give each its own cut-off and they land within **0.011 F1** of one another. The comparison measurement has shifted from which strategy *learns* better to which one scored an arbitrary 0.5.
 
 Models are therefore selected by **AUC** (ranking quality) and the operating point is set separately by threshold. Where two configurations rank within 0.005 AUC of each other, the simpler one wins.
->Refer to: [`data/regime_threshold_comparison.csv`](data/regime_threshold_comparison.csv), 76 rows.
+>Refer to: [`data/regime_threshold_comparison.csv`](data/regime_threshold_comparison.csv), 76 rows
 
 
 This is observed when comparing the confusion matrices of the different sampling strategies
@@ -127,3 +127,81 @@ No panel is explicitly better than the others:
 - undersampled it flags 1,032 and catches 284, resulting in 748 wasted flags for the difference
 
 Every one of these positions is reachable from a *single* model by moving the cut-off, so the visible gap between panels is a gap in where each strategy happened to leave the 0.5 cut-off line (not what any of the models learned), hence, rather than choosing the rebalancing strategy, the business decision is to choose the cut-off.
+
+
+## Quickstart
+### macOS dependency for `xgboost`
+```bash
+brew install libomp
+```
+On Linux the equivalent is `libgomp1`.
+
+### Setup workspace with `uv`
+```bash
+uv sync
+```
+
+```bash
+uv run pi-pipeline
+```
+
+Fetches and caches the dataset, then runs **both arms** (four 19-configuration grids, tuning, four threshold sweeps, the `PageValues` ablation, the regime comparison and the SMOTE check), writing every CSV, figure and model bundle. (**~5 minutes**)
+
+
+## Repository structure
+
+| Path | Contents |
+|-|-|
+| `src/purchasing_intent/` | The package: `config` (every constant), `data`, `features`, `pipeline`, `models`, `evaluate`, `thresholds`, `tuning`, `persistence`, `comparison`, `plots_mpl`, `cli` |
+| `notebooks/analysis.ipynb` | Narrated analysis (reasoning behind every step of the pipeline) |
+| `data/` | 15 CSVs: `raw.csv`, results and threshold sweeps for both arms (`*_no_pagevalues*` is telemetry-only), `regime_threshold_comparison.csv`, `smote_check.csv`; `baseline/` holds pre-remediation results kept as delta reference; `cache/` pins source dataset so a fresh clone runs offline |
+| `img/` | 31 figures, all regenerated from one pipeline run |
+| `models/` | Four model bundles — **not published**, see below |
+| `docs/` | Model documentation report — *not published yet* |
+
+### Two Tier Bundles
+
+`models/` is **excluded from the repository** due to:
+- rebuilt via `uv run pi-pipeline` (~5 min)
+- files are not byte-stable
+- CI rebuilds them from the source on every push (probable drift)
+
+Once built, four bundles exist:
+
+| Bundle | Tier | N_Features | Role |
+|-|-|-|-|
+| `models/production_full.joblib` | **production** | 64 | **The deployable model.** Every scoring claim and actionable operating point |
+| `models/production_top10.joblib` | production | 64 | Top-10 feature candidate |
+| `models/ceiling_full.joblib` | analysis-ceiling | 65 | The measured ceiling |
+| `models/ceiling_top10.joblib` | analysis-ceiling | 65 | Top-10 feature candidate (ceiling) |
+
+Each carries its fitted pipeline, ordered feature list, expected dtypes, its operating points (with measured precision, recall and lift), and testing to prove it reproduces the model it was trained on. Every bundle declares its tier and arm, and the ceiling bundles carry a `not_deployable_reason` since a 64-column session cannot be silently scored through a 65-column model.
+
+
+## Data Provenance
+
+**UCI Online Shoppers Purchasing Intention Dataset**, ID 468 (DOI [10.24432/C5F88Q](https://doi.org/10.24432/C5F88Q))
+
+| Property | Value |
+|---|---|
+| Instances | 12,330 sessions, one per distinct user over a one-year window |
+| Vintage | **2018** |
+| Raw features | 17 (10 numerical, 8 categorical); 65 after one-hot encoding |
+| Target | `Revenue` (boolean) |
+| Class balance | 1,908 positive (15.47%) / 10,422 negative (84.53%) |
+| Missing values | None |
+| Split | 9,864 train / 2,466 test, stratified |
+
+Sakar, C. O., Polat, S., Katircioglu, M., & Kastro, Y. (2019). *Real-time prediction of online shoppers' purchasing intention using multilayer perceptron and LSTM recurrent neural networks.* Neural Computing & Applications. DOI [10.1007/s00521-018-3523-0](https://doi.org/10.1007/s00521-018-3523-0)
+
+
+## Limitations
+
+- **`PageValues` is outcome-derived and excluded from the headline**, for the two reasons given under *Feature Decision*. `BounceRates` and `ExitRates` were audited against the same standard and are traffic-derived, not transaction-derived.
+- **The data is from 2018.** Since then, there have been major shifts in session-bound features, such as mobile commerce, instant checkouts, and privacy driven processes. Hence, this is **methodology validation, not an accurate representation of current-day forecast**.
+- **The production model's precision is not guaranteed.** Its maximum precision cut-off is 0.476, reached at 5% recall. Its operating points are, thus, expressed as *lift over the base rate*, not as a precision floor.
+- **Not yet calibrated.** The production model trains on a rebalanced sample, so its raw scores are influenced by a ~50/50 class prior it will never meet in production. Ranking and lift are unaffected, but interpretation raw scores as a likelihood is currently **optimistic**. Since the operating points chosen uses the same data they are scored on, performance metrics may have some optimistic bias (negligible 0.0001), but there would still be some uncertainty (margin of error).
+- **Single-seed point estimate.** `random_state=42` throughout; run-to-run variance is uncharacterized, so differences of a few thousandths of F1 are not meaningful.
+- **Sessions are independent here by construction, but not in production.** The dataset is deliberately one session per user; real traffic contains returning visitors whose sessions correlate.
+- **Strictly an analysis modelling pipeline.** There is no causal claim, no live data integration, no serving API, no monitoring, no A/B tests, all of which remains out of scope.
+
