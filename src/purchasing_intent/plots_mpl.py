@@ -10,16 +10,17 @@ from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from . import config
 
 
-def correlation_heatmap(corr, path, figsize=config.HEATMAP_FIGSIZE):
+def correlation_heatmap(corr, path, figsize=config.HEATMAP_FIGSIZE, close=True):
     """annotated correlation heatmap"""
     fig = plt.figure(figsize=figsize)
     sns.heatmap(corr, cmap=config.HEATMAP_CMAP, fmt=config.HEATMAP_FMT, annot=True)
     fig.savefig(path)
-    plt.close(fig)
+    if close:
+        plt.close(fig)
     return fig
 
 
-def confusion_grid(y_test, predictions, model_name, tag, plot=False):
+def confusion_grid(y_test, predictions, model_name, tag, plot=False, close=True):
     """one row of confusion matrices per sampling regime
         - predictions is a list of (regime_name, y_pred, class_labels)
     """
@@ -39,7 +40,8 @@ def confusion_grid(y_test, predictions, model_name, tag, plot=False):
         plt.show()
 
     fig.savefig(config.IMG_DIR / f"{tag}_{model_name}_cm.png")
-    plt.close(fig)
+    if close:
+        plt.close(fig)
     return fig
 
 
@@ -65,7 +67,7 @@ def _finish_roc_axis(ax, title):
     ax.legend(loc=config.ROC_LEGEND_LOC)
 
 
-def sampling_comparison(data, plot=True, figsize=config.ROC_SAMPLING_FIGSIZE):
+def sampling_comparison(data, plot=True, figsize=config.ROC_SAMPLING_FIGSIZE, close=True):
     """one panel per model, one curve per sampling technique"""
     classifiers = data["Model"].unique()
     fig_rows, fig_cols = _roc_grid(len(classifiers))
@@ -97,11 +99,12 @@ def sampling_comparison(data, plot=True, figsize=config.ROC_SAMPLING_FIGSIZE):
     plt.tight_layout()
     if plot:
         plt.show()
-    plt.close(fig)
+    if close:
+        plt.close(fig)
     return fig
 
 
-def model_comparison(data, plot=True, figsize=config.ROC_MODEL_FIGSIZE):
+def model_comparison(data, plot=True, figsize=config.ROC_MODEL_FIGSIZE, close=True):
     """one panel per sampling technique, one curve per model"""
     sampling_techs = data["SamplingTechnique"].unique()
     fig_rows, fig_cols = _roc_grid(len(sampling_techs))
@@ -133,5 +136,6 @@ def model_comparison(data, plot=True, figsize=config.ROC_MODEL_FIGSIZE):
     plt.tight_layout()
     if plot:
         plt.show()
-    plt.close(fig)
+    if close:
+        plt.close(fig)
     return fig

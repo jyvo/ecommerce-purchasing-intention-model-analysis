@@ -45,7 +45,7 @@ def build_registries(y_train) -> dict:
 
 
 def run_grid(X_train, X_test, y_train, y_test, select_k=None, tag=config.FULL_TAG, 
-             csv_path=config.RESULTS_FULL_CSV, plot=False, proba_sink=None):
+             csv_path=config.RESULTS_FULL_CSV, plot=False, proba_sink=None, close=True, display_full=True):
     """evaluate every classifier against every sampling regime and persist results"""
     registries = build_registries(y_train)
     samplers = sampler_registry()
@@ -75,16 +75,18 @@ def run_grid(X_train, X_test, y_train, y_test, select_k=None, tag=config.FULL_TA
             if select_k and not selected:
                 selected = list(pipe.named_steps["selector"].get_feature_names_out())
 
-        plots_mpl.confusion_grid(y_test, predictions, name, tag, plot=plot)
+        plots_mpl.confusion_grid(y_test, predictions, name, tag, plot=plot, close=close)
         print(f"{name} finished in {time.time() - start:.2f} seconds\n")
-        
+
         # prints all current model results (for notebook visibility)
-        # recent = results.loc[len(results) - len(predictions) : len(results) - 1]
-        # print(recent.drop(["TPR", "FPR"], axis=1).to_string())
+        if not display_full:
+            recent = results.loc[len(results) - len(predictions) : len(results) - 1]
+            print(recent.drop(["TPR", "FPR"], axis=1).to_string())
 
     print("All models finished.")
     # prints all df results
-    print(results.drop(["TPR", "FPR"], axis=1).to_string())
+    if display_full:
+        print(results.drop(["TPR", "FPR"], axis=1).to_string())
 
     if selected:
         print(f"\nSelectKBest(k={select_k}) features: {selected}")
