@@ -215,3 +215,65 @@ BUNDLE_COMPRESS_LEVEL = 3
 IMPORTANCE_TOP_N = 20
 IMPORTANCE_KIND_TREE = "impurity-based feature importance"
 IMPORTANCE_KIND_LINEAR = "coefficient magnitude (standardized inputs)"
+
+# plotly
+PLOTLY_TEMPLATE_NAME = "purchasing_intent"
+PLOTLY_FONT_FAMILY = "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif"
+PLOTLY_FONT_SIZE = 13
+PLOTLY_TITLE_SIZE = 17
+PLOTLY_PAPER_BG = "#FFFFFF"
+PLOTLY_PLOT_BG = "#FFFFFF"
+PLOTLY_GRID_COLOR = "#E4E7EB"
+PLOTLY_AXIS_COLOR = "#333A42"
+PLOTLY_MUTED_COLOR = "#6B7280"
+PLOTLY_MARGIN = {"l": 66, "r": 28, "t": 66, "b": 58}
+PLOTLY_HEIGHT = 460
+
+MODEL_COLORS = {
+    "KNN": "#0B3C5D",
+    "LogisticRegression": "#1D7874",
+    "RandomForest": "#D1495B",
+    "SVM": "#8B6BB1",
+    "XGBoost": "#E3A72F",
+}
+MODEL_LINE_STYLES = {
+    "RandomForest": {"dash": "solid"},
+    "XGBoost": {"dash": "longdash"},
+    "LogisticRegression": {"dash": "dash"},
+    "SVM": {"dash": "dashdot"},
+    "KNN": {"dash": "dot"},
+}
+REGIME_COLORS = {
+    "base": "#12355B",
+    "undersampling": "#9E2A2B",
+    "class_weighted": "#2E86AB",
+    "oversampling": "#F2A104",
+}
+REGIME_LINE_STYLES = {
+    "base": {"dash": "solid"},
+    "class_weighted": {"dash": "dash"},
+    "oversampling": {"dash": "dot"},
+    "undersampling": {"dash": "dashdot"},
+}
+
+PLOTLY_FALLBACK_COLOR = "#5A6472"
+PLOTLY_FALLBACK_LINE_STYLE = {"dash": "solid"}
+
+TIER_COLORS = {TIER_PRODUCTION: "#0B3C5D", TIER_ANALYSIS: "#9AA5B1"}
+
+# ROC panel
+ROC_CHANCE_COLOR = "#98A2B3"
+ROC_CHANCE_LINE_STYLE = {"dash": "dot"}
+ROC_FACET_COLS = 3
+
+# correlation heatmap
+CORRELATION_COLORSCALE = [
+    [0.0, "#2166AC"],
+    [0.5, "#F7F7F7"],
+    [1.0, "#B2182B"],
+]
+CORRELATION_RANGE = (-1.0, 1.0)
+CORRELATION_ANNOTATE_MAX = 26
+
+CONFUSION_COLORSCALE = [[0.0, "#FFFFFF"], [1.0, "#0B3C5D"]]
+CONFUSION_CLASS_LABELS = ("No purchase", "Purchase")
